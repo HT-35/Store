@@ -5,7 +5,8 @@ const {
   InsertCardController,
   getAllCard,
   getCarbyId,
-  ChangeProductInCard,
+  addProductInCard,
+  deleteProductInCard,
 } = require("../controller/card.controller");
 
 // localhost:3000/card
@@ -16,5 +17,7 @@ cardRouter.get("/", getAllCard);
 
 cardRouter.get("/user", getCarbyId);
 // localhost:3000/card/add
-cardRouter.post("/add", ChangeProductInCard);
+cardRouter.post("/add", addProductInCard);
+// localhost:3000/card/add
+cardRouter.post("/delete", deleteProductInCard);
 module.exports = cardRouter;

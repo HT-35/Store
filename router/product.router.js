@@ -16,6 +16,11 @@ const {
   getAllDeletSoftProduct,
 } = require("../controller/product.controller");
 
+const {
+  createCommentPro,
+  GetCommentProduct,
+} = require("../controller/commentProduct.controller");
+
 // POST : [http://localhost:3000/product]
 product.post("/", upload.single("uploaded_img"), Authentication, createProduct);
 
@@ -24,6 +29,9 @@ product.get("/", getAllProduct);
 
 // get : http://localhost:3000/product/recycling-bin/
 product.get("/bin", getAllDeletSoftProduct);
+
+// get comment: http://localhost:3000/product/comment
+product.get("/comment", GetCommentProduct);
 
 // get : http://localhost:3000/product/:slug
 product.get("/:slug", getDetailProduct);
@@ -39,5 +47,8 @@ product.delete("/recycling-bin/:slug", deleteForeverProduct);
 
 // patch : http://localhost:3000/restore/:slug
 product.patch("/restore/:slug", RestoreProduct);
+
+// post : http://localhost:3000/product/comment
+product.post("/comment", createCommentPro);
 
 module.exports = product;

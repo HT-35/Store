@@ -17,9 +17,7 @@ const loginController = async (req, res) => {
     console.log(findUser);
 
     const storedPassword = findUser.Password;
-    const decodedPassword = jwt.verify(storedPassword, privateKey, {
-      expiresIn: "24h",
-    });
+    const decodedPassword = jwt.verify(storedPassword, privateKey);
 
     const data = {
       _id: findUser._id,
