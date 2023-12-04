@@ -7,14 +7,10 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 const session = require("express-session");
 const passport = require("passport");
-
-// Bật tính năng sử dụng cookie và gửi cookie trong chính sách CORS
-const corsOptions = {
-  origin: "http://127.0.0.1:5500", // Thay thế bằng nguồn gốc của trang web của bạn
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+const path = require("path");
+// const cors = require("cors");
+// Sử dụng middleware CORS
+app.use(cors());
 
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
@@ -22,6 +18,15 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 app.use(
   session({ secret: CLIENT_SECRET, resave: false, saveUninitialized: true })
 );
+
+app.use("/public", express.static(path.join(__dirname, "./public")));
+
+// xử lý CORS headers
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 
 // Sử dụng Passport
 app.use(passport.initialize());

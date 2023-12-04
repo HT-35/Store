@@ -1,8 +1,19 @@
 const express = require("express");
 const multer = require("multer");
 const Authentication = require("../middleware/Author.middleware");
-const upload = multer({ dest: "./public/img/product" });
 
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/img/product");
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + ".jpg"); //Appending .jpg //Appending extension
+  },
+});
+const upload = multer({ storage: storage });
+  
 const product = express.Router();
 
 const {
@@ -34,7 +45,7 @@ product.get("/bin", getAllDeletSoftProduct);
 product.get("/comment", GetCommentProduct);
 
 // get : http://localhost:3000/product/:slug
-product.get("/:slug", getDetailProduct);
+product.get("/:slug", Authentication, getDetailProduct);
 
 // pacth : http://localhost:3000/product/:slug
 product.patch("/:slug", upload.single("uploaded_img"), UpdateProduct);

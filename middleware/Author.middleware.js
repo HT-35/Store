@@ -16,10 +16,10 @@ const Authentication = (req, res, next) => {
     }
 
     const decode = jwt.verify(token, privateKey, {
-      expiresIn: "24h",
+      expiresIn: "48h",
     });
     //   console.log(decode);
-    if (decode.data.Role === "Admin") {
+    if (decode.data.Role === "Admin" || decode.data.Role === "User") {
       next();
     } else {
       res.status(400).json({
@@ -33,7 +33,7 @@ const Authentication = (req, res, next) => {
     console.log(error);
     res.status(400).json({
       status: false,
-      data: error,  
+      data: error,
     });
   }
 };

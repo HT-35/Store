@@ -16,7 +16,7 @@ const createProductService = async ({
   InformationProduct,
 }) => {
   try {
-    // console.log("pathImg:  ", pathImg);
+    // console.log(pathExtentionImg);
     const product = await productModel.create({
       Unit,
       ProductName,
@@ -59,6 +59,8 @@ const findAllProductService = async (req) => {
       .sort({ Price: -1 })
       .skip(pageOptions.page * pageOptions.limit)
       .limit(pageOptions.limit);
+    // console.log(getAllPro);
+
     return await getAllPro;
   } catch (error) {
     return error;

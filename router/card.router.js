@@ -16,8 +16,7 @@ cardRouter.get("/", getAllCard);
 // localhost:3000/card/user
 
 cardRouter.get("/user", getCarbyId);
-// localhost:3000/card/add
-cardRouter.post("/add", addProductInCard);
+
 // localhost:3000/card/add
 cardRouter.post("/delete", deleteProductInCard);
 module.exports = cardRouter;

@@ -9,35 +9,70 @@ const {
 } = require("../utils/calculateTotal.utils");
 
 const InsertCardController = async (req, res) => {
-  const { user, products } = req.body;
-  const id = new mongoose.Types.ObjectId(`${user}`);
-  let total = 0;
-  let dataProduct = [];
-
-  if (products) {
-    let PriceProduct = [];
-    for (let i of products) {
-      // đẩy từng item của product vào mảng product
-      dataProduct.push(i);
-      // lấy id của product để tính giá
-      const id = i.product;
-      const findItem = await productModel.findById({ _id: id });
-      let price = findItem.Price;
-      // console.log(price);
-      PriceProduct.push(price);
+  try {
+    const token = req.headers.token;
+    if (!token) {
+      return res.status(400).json({
+        status: false,
+        data: "Missing token",
+      });
     }
-    total = PriceProduct.reduce((acc, currentValue) => acc + currentValue, 0);
+
+    const { _id } = DeCodeJwt(token).data;
+    const { products } = req.body;
+    const id = new mongoose.Types.ObjectId(_id); // Create ObjectId directly
+
+    const findCard = await cardModel.findOne({ user: id });
+
+    if (!findCard) {
+      let dataProduct = [];
+
+      if (products && products.length > 0) {
+        dataProduct = products.map((product) => ({ ...product }));
+      }
+
+      console.log(dataProduct);
+
+      const insertCard = await cardModel.create({
+        user: _id,
+        products: dataProduct,
+      });
+
+      return res.json(insertCard);
+    } else {
+      if (products && products.length > 0) {
+        const findcard = await cardModel.findOne({ user: id });
+
+        const OldArrProduct = aggregateProductsAndTotal(findcard);
+
+        const resultArray = UpdateProduct(OldArrProduct, products);
+
+        console.log(resultArray);
+
+        await cardModel.findOneAndUpdate(
+          { user: id },
+          { products: resultArray }
+        );
+
+        const newfindcard = await cardModel.findOne({ user: id });
+        return res.status(200).json({
+          status: true,
+          data: newfindcard.products,
+        });
+      } else {
+        return res.status(400).json({
+          status: false,
+          data: "Update failed. No products provided.",
+        });
+      }
+    }
+  } catch (error) {
+    console.log("error: ", error);
+    return res.status(500).json({
+      status: false,
+      data: "Internal Server Error",
+    });
   }
-
-  console.log(dataProduct);
-
-  const insertCard = await cardModel.create({
-    user: id,
-    products: dataProduct,
-    total,
-  });
-  //   console.log(insertCard);
-  res.json(insertCard);
 };
 
 const getAllCard = async (req, res) => {
@@ -55,21 +90,24 @@ const getCarbyId = async (req, res) => {
   // res.json({ result });
   try {
     if (token) {
-      const { _id, UserName, Role } = DeCodeJwt(token).data;
-
+      const { _id } = DeCodeJwt(token).data;
+      const id = new mongoose.Types.ObjectId(_id);
+      // const id = new mongoose.Types.ObjectId("655b83acc318123fd8bb4e0c");
+      // console.log(id);
       const findCard = await cardModel
-        .findOne({ user: _id })
+        .findOne({ user: id })
         .populate("user")
         .populate("products.product");
-      //   console.log(price);
+      // console.log(findCard);
       if (findCard) {
-        const aggregateProductAndTotal = await aggregateProductsAndTotal(
-          findCard
-        );
+        // const aggregateProductAndTotal = await aggregateProductsAndTotal(
+        //   findCard
+        // );
+        // console.log(findCard);
 
         res.status(200).json({
           status: true,
-          data: { aggregateProductAndTotal },
+          data: findCard,
         });
       } else {
         res.status(200).json({
@@ -79,65 +117,6 @@ const getCarbyId = async (req, res) => {
       }
     } else {
       res.json("vui long Login");
-    }
-  } catch (error) {
-    console.log("error:  ", error);
-    res.status(400).json({
-      status: false,
-      data: error,
-    });
-  }
-};
-const addProductInCard = async (req, res) => {
-  const { token } = req.headers;
-
-  try {
-    if (token) {
-      const { _id, UserName, Role } = DeCodeJwt(token).data;
-      const { products } = req.body;
-      let total = 0;
-
-      if (products) {
-        for (let i of products) {
-          const id = i.product;
-          const findItem = await productModel.find({ _id: id });
-          total += Number(findItem[0].Price);
-        }
-      }
-
-      // thêm product
-      if (products.length > 0) {
-        const findcard = await cardModel.findOne({ user: _id });
-
-        const OldArrProduct = aggregateProductsAndTotal(findcard);
-
-        // Chuyển kết quả từ Map thành mảng
-        const resultArray = UpdateProduct(OldArrProduct, products);
-
-        // console.log(resultArray);
-
-        // const card = await cardModel.findOneAndUpdate(
-        //   { user: _id },
-        //   { products: resultArray }
-        // );
-        console.log(resultArray);
-
-        const newfindcard = await cardModel.findOne({ user: _id });
-        res.status(200).json({
-          status: true,
-          data: resultArray,
-        });
-        return;
-      }
-      res.status(400).json({
-        status: false,
-        data: "update false",
-      });
-    } else {
-      res.status(400).json({
-        status: false,
-        data: "dang nhap di thang lol",
-      });
     }
   } catch (error) {
     console.log("error:  ", error);
@@ -160,32 +139,7 @@ const deleteProductInCard = async (req, res) => {
       const OldArrProduct = findCardUser[0].products;
 
       let newArrProduct = deleteProduct(OldArrProduct, productsDelete);
-      // delete and create New Arr
 
-      // OldArrProduct.filter((item) => {
-      //   const productItem = item.product.toString();
-      //   const productDelete = products[0].product;
-      //   let qualityItem = Number(item.quality);
-      //   let quanlityDelete = Number(products[0].quality);
-      //   if (productDelete === productItem) {
-      //     console.log("delete");
-      //     const newquanlity = qualityItem - quanlityDelete;
-      //     const newProduct = {
-      //       product: item.product,
-      //       quality: newquanlity,
-      //       _id: item._id,
-      //     };
-      //     newArrProduct.push(newProduct);
-      //     return;
-      //   }
-      //   newArrProduct.push(item);
-      // });
-      // await cardModel.findOneAndUpdate(
-      //   { user: idUser },
-      //   { products: newArrProduct }
-      // );
-
-      // console.log("newArrProduct", newArrProduct);
       res.json(newArrProduct);
       return;
     }
@@ -199,6 +153,5 @@ module.exports = {
   InsertCardController,
   getAllCard,
   getCarbyId,
-  addProductInCard,
   deleteProductInCard,
 };

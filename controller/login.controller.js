@@ -3,7 +3,9 @@ const jwt = require("jsonwebtoken");
 
 const loginController = async (req, res) => {
   const { UserName, Password } = req.body;
+  const data = req.body;
 
+  // console.log(data);
   const privateKey = process.env.SECRET;
 
   try {
@@ -14,7 +16,7 @@ const loginController = async (req, res) => {
         data: "User not found",
       });
     }
-    console.log(findUser);
+    // console.log(findUser);
 
     const storedPassword = findUser.Password;
     const decodedPassword = jwt.verify(storedPassword, privateKey);
@@ -27,12 +29,13 @@ const loginController = async (req, res) => {
 
     if (Password === decodedPassword.Password) {
       const tokenUser = jwt.sign({ data }, privateKey, {
-        expiresIn: "24h",
+        expiresIn: "100h",
       });
 
       return res.status(200).json({
         status: true,
-        data: tokenUser,
+        token: tokenUser,
+        data: data,
       });
     } else {
       return res.status(400).json({

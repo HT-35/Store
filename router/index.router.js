@@ -9,6 +9,8 @@ const login = require("./login.router");
 const authenGoogle = require("./loginGoogle.router");
 const card = require("./card.router");
 
+const billModel = require("./bill.route");
+
 // const authRouter = require("./authGoogle.router");
 // [http://localhost:3000/]
 root.use("/home", home);
@@ -25,5 +27,8 @@ root.use("/auth", authenGoogle);
 
 //localhost:3000/card
 root.use("/card", card);
+
+//localhost:3000/card
+root.use("/bill", billModel);
 
 module.exports = root;

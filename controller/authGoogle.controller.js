@@ -22,8 +22,8 @@ const handleCallback = async (req, res) => {
     findOrCreateUser();
     // const createUser = await userModel.create(data);
 
-    res.json(data);
-    // res.redirect("/home");
+    // res.json(data);
+    res.redirect("http://127.0.0.1:5500/index.html");
   } else {
     console.log("Xác thực không thành công");
     res.redirect("/login");

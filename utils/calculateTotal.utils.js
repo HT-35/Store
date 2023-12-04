@@ -11,6 +11,7 @@ const aggregateProductsAndTotal = (findCard) => {
     // trong object arrPro {} không tồn tại khóa (key) [idProduct] thì
     // thêm vào object 1 đối tượng mới là  arrPro[idProduct]
     if (!arrPro[idProduct]) {
+      // thêm vào obj arrPro giá trị {  '654e53e49cf42863cad83b79': { product: new ObjectId("654e53e49cf42863cad83b79"), quality: 7 },}
       arrPro[idProduct] = {
         product: idProduct,
         quality: quality,
@@ -22,15 +23,9 @@ const aggregateProductsAndTotal = (findCard) => {
   }
 
   // Object.values(arrPro) lấy tất cả các giá trị của các thuộc tính (properties) trong arrPro và chuyển chúng thành một mảng mới. Mỗi giá trị trong mảng này tương ứng với một đối tượng sản phẩm đã gom nhóm, chứa thông tin về product (ID sản phẩm) và tổng quality
+  // console.log("arrPro:    ", arrPro);
   const result = Object.values(arrPro);
 
-  //   let total = 0;
-
-  //   for (let i of result) {
-  //     let price = Number(i.product.Price) * Number(i.quality);
-  //     console.log("i", price);
-  //     total += price;
-  //   }
   return result;
 };
 
